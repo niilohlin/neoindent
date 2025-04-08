@@ -1,4 +1,3 @@
-
 local M = {}
 
 UP = -1
@@ -27,9 +26,15 @@ local function find_end_of_indent(lnum, direction)
 
   while true do
     lnum = lnum + direction
-    if lnum <= 0 or lnum > vim.fn.line("$") then return lnum - direction end
-    if vim.fn.getline(lnum) == "" then goto continue end
-    if vim.fn.indent(lnum) < current_indentation then return lnum - direction end
+    if lnum <= 0 or lnum > vim.fn.line("$") then
+      return lnum - direction
+    end
+    if vim.fn.getline(lnum) == "" then
+      goto continue
+    end
+    if vim.fn.indent(lnum) < current_indentation then
+      return lnum - direction
+    end
     ::continue::
   end
 end
@@ -48,8 +53,8 @@ function M:NeoindentObject()
   local ltop = find_end_of_indent(nil, UP)
   local lbottom = find_end_of_indent(nil, DOWN)
 
-  vim.fn.setpos("'<", {vim.fn.bufnr(), ltop, 1, 0})
-  vim.fn.setpos("'>", {vim.fn.bufnr(), lbottom, string.len(vim.fn.getline(lbottom)), 1})
+  vim.fn.setpos("'<", { vim.fn.bufnr(), ltop, 1, 0 })
+  vim.fn.setpos("'>", { vim.fn.bufnr(), lbottom, string.len(vim.fn.getline(lbottom)), 1 })
   vim.cmd("normal! gv")
 end
 
@@ -58,17 +63,16 @@ function M:setup(overrides)
   local keymap = {
     up = "[i",
     down = "]i",
-    object = "ii"
+    object = "ii",
   }
 
   for k, v in pairs(overrides) do
     keymap[k] = v
   end
-  vim.keymap.set("n", keymap["up"], M.NeoindentGoUp)
-  vim.keymap.set("n", keymap["down"], M.NeoindentGoDown)
-  vim.keymap.set('x', keymap["object"], M.NeoindentObject)
-  vim.keymap.set('o', keymap["object"], M.NeoindentObject)
+  vim.keymap.set({ "n", "x" }, keymap["up"], M.NeoindentGoUp)
+  vim.keymap.set({ "n", "x" }, keymap["down"], M.NeoindentGoDown)
+  vim.keymap.set("x", keymap["object"], M.NeoindentObject)
+  vim.keymap.set("o", keymap["object"], M.NeoindentObject)
 end
 
 return M
-
